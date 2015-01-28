@@ -5,14 +5,11 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-#import pango
-
 import subprocess
 
-#SAMPLE = "print ''.join('%(pre)s%(num)s %(bot)s on the wall, %(nul)s %(bot)s,\n%(tak)s\n' % (lambda c,b:  {'pre':['','%s %s on the wall.\n\n' % (c,b)][abs(cmp(c,'Ninety-nine'))], 'num':c, 'nul':c.lower(), 'bot':b, 'tak':['Go to the store and buy some more... Ninety-nine %s.' % b,'Take one down, pass it around,'][abs(cmp(x,0))]  })((lambda x,o: [(['Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'][x/10-2]+'-'+o.lower()).replace('-no more',''), o][int(x<20)])(x, ['No more','One','Two', 'Three','Four','Five','Six','Seven','Eight', 'Nine','Ten','Eleven','Twelve','Thirteen','Fourteen', 'Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'][[x,x%10][int(x>=20)]]),'bottle%s of beer' % ['','s'][abs(cmp(x,1))])  for x in xrange(99,-1,-1))"
-
-PY_PATH = "/home/lifman/metaxnet/Peten/"
-PY_SCRIPTS_PATH = "/home/lifman/metaxnet/Peten/"
+EXECUTABLE = "python"
+PY_PATH = "./" # Where to find translations.py etc...
+PY_SCRIPTS_PATH = "./" # Where to put scripts and where to create temp.py
 
 FRAMERS = {"\"": "\"", "'": "'", "[": "]", "{": "}", "(": ")"}
 STRINGERS = ["\"", "'"]
@@ -28,8 +25,9 @@ class Commander:
                 rebol, hebrew = l.split(" = ")
                 self.translated[hebrew] = rebol
         self.reset()
-        self.py = subprocess.Popen(['python'], stdin=subprocess.PIPE)
-        self.py.stdin.write("# coding=UTF-8"+"\n")
+        # For an interactive shell...
+        #self.py = subprocess.Popen([EXECUTABLE], stdin=subprocess.PIPE)
+        #self.py.stdin.write("# coding=UTF-8"+"\n")
         
     def tokenize(self, text):
         SPACES = [" ","\t", "\n",",", ":"]
@@ -103,7 +101,7 @@ class Commander:
         f.close()
 
     def run(self):
-        subprocess.call(["python", PY_SCRIPTS_PATH+"temp.py"])
+        subprocess.call([EXECUTABLE, PY_SCRIPTS_PATH+"temp.py"])
 
 
 class App:
@@ -165,8 +163,8 @@ class App:
     def run(self):
         self.commander.run()
         
-    def add_command_line_to_textscreen(self, text):
-        self.textbuffer.insert_at_cursor(text+"\n")        
+    #def add_command_line_to_textscreen(self, text):
+    #    self.textbuffer.insert_at_cursor(text+"\n")        
 
     def destroy(self, event=None):
         gtk.main_quit()
