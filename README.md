@@ -1,5 +1,7 @@
 # peten
 * paste following code in text area and press "Process and Run"
+
+
 מחלקה כלב:
         הגדר __אתחל__(עצמי, שם):
                 עצמי.שם = שם
@@ -13,6 +15,7 @@
 מוקי = כלב("מוקי")
 מוקי.נבח("מיצי")
 מוקי.נבח("מוקי")
+
 
 * python basic dictionary is kept in "translations.py"
 * process prepares a valid python script in temp.py
