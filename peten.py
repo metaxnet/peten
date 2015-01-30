@@ -77,6 +77,7 @@ class Commander:
         return tokens
                 
     def reset(self):
+        self.translation_comments = []
         self.entered_commands = []
         
     def handle_command_line(self, text):
@@ -95,7 +96,7 @@ class Commander:
         return word
         
     def process(self):
-        self.entered_commands = ["# coding=UTF-8"]+self.entered_commands
+        self.entered_commands = ["# coding=UTF-8"]+self.translation_comments+self.entered_commands
         f = open(PY_SCRIPTS_PATH+"temp.py", "wb")
         f.write("\n".join(self.entered_commands))
         f.close()
@@ -110,6 +111,9 @@ class App:
         self.commander = Commander(self, self.debug_mode)
         self.window = gtk.Window()
         self.window.connect("destroy", self.destroy)
+        hbox_menu = gtk.HBox()
+        menu = self.create_menu()
+        hbox_menu.pack_start(menu, False, False, 0)
         vbox = gtk.VBox()
         self.textbuffer = gtk.TextBuffer()
         self.textview = gtk.TextView()
@@ -122,11 +126,77 @@ class App:
         hbox_buttons = gtk.HBox()
         button_process_and_run = gtk.Button("Process and Run")
         button_process_and_run.connect("clicked", self.process_and_run)
-        hbox_buttons.pack_start(button_process_and_run, 0,0,False)
-        vbox.pack_start(self.vpaned, 0,0,False)
-        vbox.pack_start(hbox_buttons, 0,0,False)
+        hbox_buttons.pack_start(button_process_and_run, False, False, 0)
+        vbox.pack_start(hbox_menu, False, False, 0)
+        vbox.pack_start(self.vpaned, False, False, 0)
+        vbox.pack_start(hbox_buttons, False, False, 0)
         self.window.add(vbox)
         self.window.show_all()
+        self.current_file = ""
+        
+    def create_menu(self):
+        menu_bar = gtk.MenuBar()
+        file_menu = gtk.Menu()
+        file_menu_item = gtk.MenuItem("File")
+        file_menu_item.set_submenu(file_menu)
+        menu_bar.append(file_menu_item)
+
+        open_menu_item = gtk.MenuItem("Open")
+        open_menu_item.connect("activate", self.execute_file_open)
+        file_menu.append(open_menu_item)
+        save_menu_item = gtk.MenuItem("Save")
+        save_menu_item.connect("activate", self.execute_file_save)
+        file_menu.append(save_menu_item)
+        save_as_menu_item = gtk.MenuItem("Save As")
+        save_as_menu_item.connect("activate", self.execute_file_save_as)
+        file_menu.append(save_as_menu_item)
+        menu_bar.show_all()
+        return menu_bar
+
+    def _select_file(self, title, action):
+        dialog = gtk.FileChooserDialog(title,
+                               None,
+                               action,
+                               (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        dialog.set_default_response(gtk.RESPONSE_OK)
+        #dialog.set_current_name("My FIlename")
+
+        filter = gtk.FileFilter()
+        filter.set_name("All files")
+        filter.add_pattern("*")
+        dialog.add_filter(filter)
+        response = dialog.run()
+        filename = ""
+        if response == gtk.RESPONSE_OK:
+             filename = dialog.get_filename()        
+        dialog.destroy()
+        return filename
+        
+    def execute_file_open(self, widget=None, event=None):
+        filename = self._select_file("Open...", gtk.FILE_CHOOSER_ACTION_OPEN)
+        if filename:
+            self.current_file = filename
+            f = open(self.current_file, "rb")
+            text = f.read()
+            self.textbuffer.set_text(text)
+            f.close()
+
+    def _save_current_file(self):
+        f = open(self.current_file, "wb")
+        s, e = self.textbuffer.get_bounds()
+        text = self.textbuffer.get_text(s,e)
+        f.write(text)
+        f.close()
+
+    def execute_file_save(self, widget=None, event=None):
+        self._save_current_file()
+
+    def execute_file_save_as(self, widget=None, event=None):
+        filename = self._select_file("Save As..", gtk.FILE_CHOOSER_ACTION_SAVE)
+        if filename:
+            self.current_file = filename
+            self._save_current_file()
         
     def _is_illegal(self, word):
         if word[0] in ["\"", "'"] and word[-1] in ["\"", "'"]:
@@ -142,6 +212,7 @@ class App:
         lines = text.split("\n")
         self.commander.reset()        
         self.needing_translation = []
+        translation_comments = []
         for l in lines:
             words = self.commander.tokenize(l.decode("utf-8"))
             out = []
@@ -151,11 +222,14 @@ class App:
                     if word not in self.needing_translation:
                         self.needing_translation.append(word)
                         pyword = "_word"+str(len(self.needing_translation))
+                        translation_comments.append("# %s = %s" % (word, pyword))
                     else:
                         pyword = "_word"+str(self.needing_translation.index(word) + 1)
                 out.append(pyword)
             self.commander.entered_commands.append("".join(out))
+        self.commander.translation_comments = translation_comments[:]
         if self.debug_mode:
+            print "\n".join(translation_comments)
             print "\n".join(self.commander.entered_commands)
         self.commander.process()
         self.commander.run()
