@@ -1,6 +1,6 @@
 # peten
 * paste following code in text area and press "Process and Run"
-<div style = "{direction: rtl;}">
+<div style = "{direction: rtl; text-align: right;}">
 <pre><code>
 מחלקה כלב:
         הגדר __אתחל__(עצמי, שם):
