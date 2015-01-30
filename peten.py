@@ -33,8 +33,10 @@ class Commander:
         SPACES = [" ","\t", "\n",",", ":"]
         BRACES = ["[", "]", "(", ")", "{", "}"]
         OPERATORS = list("+-/*^&%!=<>")
+        COMMENTS = ["#"]
         i = 0
         in_string = ""
+        in_comment = ""
         tokens = []
         token = []
         if self.debug_mode:
@@ -51,6 +53,19 @@ class Commander:
                 elif text[i] == "\\" and i < len(text)-1:
                     token.append(text[i+1])
                     i = i + 1
+                i = i + 1
+            elif in_comment:
+                token.append(text[i])
+                if text[i] == "\n":
+                    tokens.append("".join(token))
+                    token = []
+                    in_comment = ""
+                i = i + 1
+            elif text[i] in COMMENTS:
+                if token:
+                    tokens.append("".join(token))                   
+                token = [text[i]]
+                in_comment = text[i]
                 i = i + 1
             elif text[i] in ["\"", "'"]:
                 if token:
@@ -71,9 +86,10 @@ class Commander:
         if token:
             tokens.append("".join(token))
         if self.debug_mode:
-            for t in tokens:
-                print t,
-            print
+            #for t in tokens:
+            #    print t,
+            #print
+            print tokens
         return tokens
                 
     def reset(self):
@@ -96,6 +112,8 @@ class Commander:
         return word
         
     def process(self):
+        if "# coding=UTF-8" in self.entered_commands:
+            self.entered_commands.remove("# coding=UTF-8")
         self.entered_commands = ["# coding=UTF-8"]+self.translation_comments+self.entered_commands
         f = open(PY_SCRIPTS_PATH+"temp.py", "wb")
         f.write("\n".join(self.entered_commands))
@@ -199,6 +217,8 @@ class App:
             self._save_current_file()
         
     def _is_illegal(self, word):
+        if word[0] in ["#"]:
+            return False
         if word[0] in ["\"", "'"] and word[-1] in ["\"", "'"]:
             return False
         for c in word:
@@ -247,5 +267,5 @@ class App:
         gtk.main()
 
 if __name__ == "__main__":
-    app = App()
+    app = App(True)
     app.main()
