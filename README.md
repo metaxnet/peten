@@ -1,8 +1,8 @@
 # peten
 * paste following code in text area and press "Process and Run"
+
 <pre>
 <code>
-
 מחלקה כלב:
         הגדר __אתחל__(עצמי, שם):
                 עצמי.שם = שם
@@ -14,13 +14,11 @@
                         הדפס "..."
 
 מוקי = כלב("מוקי")
-
 מוקי.נבח("מיצי")
-
 מוקי.נבח("מוקי")
-
 </code>
 </pre>
+
 * python basic dictionary is kept in "translations.py"
 * process prepares a valid python script in temp.py
 * run executes temp.py using executable name "python"
