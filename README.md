@@ -1,6 +1,5 @@
 # peten
 * paste following code in text area and press "Process and Run"
-<div style = "{direction: rtl; text-align: right;}">
 <pre><code>
 מחלקה כלב:
         הגדר __אתחל__(עצמי, שם):
@@ -16,7 +15,7 @@
 מוקי.נבח("מיצי")
 מוקי.נבח("מוקי")
 
-</code></pre></div>
+</code></pre>
 * python basic dictionary is kept in "translations.py"
 * process prepares a valid python script in temp.py
 * run executes temp.py using executable name "python"
