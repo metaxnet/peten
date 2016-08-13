@@ -1,4 +1,4 @@
-__init__ = __אתחל__
+__init__ = __לאתחל__
 and = וגם
 as = בשם
 assert = ASSERT
