@@ -19,8 +19,8 @@
 </code>
 </pre>
 
-* python basic dictionary is kept in "translations.py"
+* python basic dictionary is kept in "translations.txt"
 * process prepares a valid python script in temp.py
-* run executes temp.py using executable name "python"
+* run executes temp.py using executable name "python3"
 
 
