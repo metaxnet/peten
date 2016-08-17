@@ -30,7 +30,7 @@ class Commander:
         #self.py = subprocess.Popen([EXECUTABLE], stdin=subprocess.PIPE)
         #self.py.stdin.write("# coding=UTF-8"+"\n")
         
-    def tokenize(self, text, debug_mode = False):
+    def tokenize(self, text, debug_mode = True):
         SPACES = [" ","\t", "\r", "\n",",", ":", ";"]
         BRACES = ["[", "]", "(", ")", "{", "}"]
         OPERATORS = list("+-/*^&%!=<>")
@@ -418,22 +418,25 @@ class App:
 
 def process_and_run_no_GUI(filename, debug_mode=True):
     commander = Commander(None, debug_mode)        
-    text = open(filename, "rb").read()
+    text = open(filename, "r").read()
     try:
-        translations_text = open(filename+".translations", "rb").read()
+        translations_text = open(filename+".translations", "r").read()
         commander.update_translations_from_comments(translations_text)
         translation_comments = translations_text.split("\n")
     except:
-        text = [COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END]
-        f = open(filename+".translations", "w")
+        text = "".join([COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END])
+        f = open(filename+".translations", "w")#
+    
         f.write(text)
         f.close()
         translation_comments = []
 
     needing_translation = []
-    lines = text.split("\n")
+    lines = str(text).split("\n")
     for l in lines:
+        print (l, type(l))
         words = commander.tokenize(l) #.decode("utf-8"))
+        print ("WORDS:\n", words)
         pyline = []
         for word in words:
             pyword = commander.translate(word)
