@@ -3,24 +3,24 @@
 
 <pre>
 <code>
-מחלקה כלב:
-        הגדר __אתחל__(עצמי, שם):
+מחלקה ככלב:
+        איך __לאתחל__(עצמי, שם):
                 עצמי.שם = שם
 
-        הגדר נבח(עצמי, שם):
+        איך לנבוח(עצמי, שם):
                 אם עצמי.שם == שם:
-                        הדפס "הב הב!"
+                        להדפיס ("הב הב!")
                 אחרת:
-                        הדפס "..."
+                        להדפיס ("...")
 
-מוקי = כלב("מוקי")
-מוקי.נבח("מיצי")
-מוקי.נבח("מוקי")
+מוקי = ככלב("מוקי")
+מוקי.לנבוח("מיצי")
+מוקי.לנבוח("מוקי")
 </code>
 </pre>
 
-* python basic dictionary is kept in "translations.py"
+* python basic dictionary is kept in "translations.txt"
 * process prepares a valid python script in temp.py
-* run executes temp.py using executable name "python"
+* run executes temp.py using executable name "python3"
 
 
