@@ -11,8 +11,9 @@ import gtk
 import subprocess
 
 EXECUTABLE = "python3"
-PY_PATH = "./" # Where to find translations.py etc...
-PY_SCRIPTS_PATH = "./" # Where to put scripts and where to create temp.py
+EXECUTABLE = "C:\Python34\python.exe"
+PY_PATH = os.path.join(".","") # Where to find translations.py etc...
+PY_SCRIPTS_PATH = os.path.join(".","") # Where to put scripts and where to create temp.py
 
 FRAMERS = {"\"": "\"", "'": "'", "[": "]", "{": "}", "(": ")"}
 STRINGERS = ["\"", "'"]
@@ -41,7 +42,7 @@ class Commander:
         tokens = []
         token = []
         if debug_mode:
-            print("Tokenizing", text)
+            print(text.decode("utf8"))
         while i < len(text):
             #If we're inside an open string, add char to current token
             if in_string:
@@ -112,7 +113,7 @@ class Commander:
             return False
 
     def _update_translations_from_file(self, filename):
-        translations = open(filename).read() #.decode("utf-8")
+        translations = open(filename, "rb").read().decode("utf-8")
         for l in translations.split("\n"):
             if " = " in l:
                 code, hebrew = l.split(" = ")
@@ -341,14 +342,15 @@ class App:
     def get_text(self):
         s, e = self.textbuffer.get_bounds()
         text = self.textbuffer.get_text(s, e, False)
-        return text
+        print (type(text))
+        return text #.decode("utf8")
 
     def translate(self, text, debug_mode=False):
         self.commander.reset()
         if debug_mode:
             print (len(self.commander.translated.keys()), "Words in dictionary")
         try:
-            translations_text = open(self.current_file+".translations", "rb").read() #.decode("utf8")
+            translations_text = open(self.current_file+".translations", "rb").read().decode("utf8")
             self.commander.update_translations_from_comments(translations_text)
             translation_comments = translations_text.split("\n")
         except:
