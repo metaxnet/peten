@@ -11,7 +11,7 @@ import gtk
 import subprocess
 
 EXECUTABLE = "python3"
-EXECUTABLE = "C:\Python34\python.exe"
+#EXECUTABLE = "C:\Python34\python.exe"
 PY_PATH = os.path.join(".","") # Where to find translations.py etc...
 PY_SCRIPTS_PATH = os.path.join(".","") # Where to put scripts and where to create temp.py
 
@@ -31,7 +31,7 @@ class Commander:
         #self.py = subprocess.Popen([EXECUTABLE], stdin=subprocess.PIPE)
         #self.py.stdin.write("# coding=UTF-8"+"\n")
         
-    def tokenize(self, text, debug_mode = True):
+    def tokenize(self, text, debug_mode = False):
         SPACES = [" ","\t", "\r", "\n",",", ":", ";"]
         BRACES = ["[", "]", "(", ")", "{", "}"]
         OPERATORS = list("+-/*^&%!=<>")
@@ -42,7 +42,7 @@ class Commander:
         tokens = []
         token = []
         if debug_mode:
-            print(text.decode("utf8"))
+            print(text)
         while i < len(text):
             #If we're inside an open string, add char to current token
             if in_string:
@@ -342,8 +342,7 @@ class App:
     def get_text(self):
         s, e = self.textbuffer.get_bounds()
         text = self.textbuffer.get_text(s, e, False)
-        print (type(text))
-        return text #.decode("utf8")
+        return text
 
     def translate(self, text, debug_mode=False):
         self.commander.reset()
