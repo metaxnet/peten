@@ -10,8 +10,8 @@ import gtk
 
 import subprocess
 
-EXECUTABLE = "python3"
-#EXECUTABLE = "C:\Python34\python.exe"
+#EXECUTABLE = "python3"
+EXECUTABLE = "C:\Python34\python.exe"
 PY_PATH = os.path.join(".","") # Where to find translations.py etc...
 PY_SCRIPTS_PATH = os.path.join(".","") # Where to put scripts and where to create temp.py
 
@@ -21,6 +21,9 @@ STRINGERS = ["\"", "'"]
 COMMENTS_BEGIN = "### PETEN TRANSLATION COMMENTS ###"
 COMMENTS_END = "### END OF TRANSLATION COMMENTS ###"
 DUMMY_COMMENT = "# "+ "המונח_בעברית"+ " = " + "python_or_english_translation"
+
+NEWLINE = os.linesep #"\r\n"
+
 class Commander:
     def __init__(self, app_object, debug_mode = False):
         self.debug_mode = debug_mode
@@ -114,7 +117,7 @@ class Commander:
 
     def _update_translations_from_file(self, filename):
         translations = open(filename, "rb").read().decode("utf-8")
-        for l in translations.split("\n"):
+        for l in translations.split(NEWLINE):
             if " = " in l:
                 code, hebrew = l.split(" = ")
                 if not self._update_translations_with_hebrew_and_code(hebrew, code):
@@ -166,12 +169,14 @@ class Commander:
             out.append(pyword)
         self.entered_commands.append(" ".join(out))
         #
-        self.py.stdin.write(" ".join(out)+"\n")
+        self.py.stdin.write(" ".join(out)+NEWLINE)
         
     def get_translation_dic(self):
         return self.translated
 
     def translate(self, word, debug_mode=False):
+        #print ("translating", bytes(word, "utf8"))
+        #print ([bytes(x, "utf8") for x in self.translated.keys()])
         if word in self.translated:
             return self.translated[word]
         if word in " +-=%*/.()[]{}:!,<>0123456789":
@@ -199,8 +204,11 @@ class Commander:
         if "# coding=UTF-8" in self.entered_commands:
             self.entered_commands.remove("# coding=UTF-8")
         self.entered_commands = ["# coding=UTF-8"]+self.entered_commands+self.translation_comments
-        f = open(PY_SCRIPTS_PATH+"temp.py", "w")
-        f.write("\n".join(self.entered_commands))
+        print(type(self.entered_commands))
+        f = open(PY_SCRIPTS_PATH+"temp.py", "wb")
+        new_text = NEWLINE.join(self.entered_commands)
+        #print (bytes(new_text, "utf8"))
+        f.write(bytes(new_text,"utf8"))
         f.close()
 
     def run(self):
@@ -351,9 +359,9 @@ class App:
         try:
             translations_text = open(self.current_file+".translations", "rb").read().decode("utf8")
             self.commander.update_translations_from_comments(translations_text)
-            translation_comments = translations_text.split("\n")
+            translation_comments = translations_text.split(NEWLINE)
         except:
-            translations_text = "\n".join([COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END])
+            translations_text = NEWLINE.join([COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END])
             f = open(self.current_file+".translations", "w")
             f.write(translations_text)
             f.close()
@@ -364,7 +372,7 @@ class App:
             for k in self.commander.translated.keys():
                 print (k, self.commander.translated[k])
 
-        lines = text.split("\n")
+        lines = text.split(NEWLINE)
         needing_translation = []
         translation_comments = []
         translation_comments_index = len(self.commander.translated.keys())
@@ -388,8 +396,8 @@ class App:
             self.commander.entered_commands.append("".join(out))
         self.commander.translation_comments = translation_comments[:]
         if debug_mode:
-            print ("\n".join(translation_comments))
-            print ("\n".join(self.commander.entered_commands))
+            print (NEWLINE.join(translation_comments))
+            print (NEWLINE.join(self.commander.entered_commands))
 
     def process(self, widget=None, event=None):
         text = self.get_text()
@@ -423,7 +431,7 @@ def process_and_run_no_GUI(filename, debug_mode=True):
     try:
         translations_text = open(filename+".translations", "r").read()
         commander.update_translations_from_comments(translations_text)
-        translation_comments = translations_text.split("\n")
+        translation_comments = translations_text.split(NEWLINE)
     except:
         text = "".join([COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END])
         f = open(filename+".translations", "w")#
@@ -433,11 +441,11 @@ def process_and_run_no_GUI(filename, debug_mode=True):
         translation_comments = []
 
     needing_translation = []
-    lines = str(text).split("\n")
+    lines = str(text).split(NEWLINE)
     for l in lines:
         print (l, type(l))
         words = commander.tokenize(l) #.decode("utf-8"))
-        print ("WORDS:\n", words)
+        print ("WORDS:"+NEWLINE, words)
         pyline = []
         for word in words:
             pyword = commander.translate(word)
@@ -453,8 +461,8 @@ def process_and_run_no_GUI(filename, debug_mode=True):
     if COMMENTS_BEGIN not in translation_comments:
         commander.translation_comments = [COMMENTS_BEGIN] + translation_comments[:] + [COMMENTS_END]
     if debug_mode:
-        print ("\n".join(commander.entered_commands))
-        print ("\n".join(translation_comments))
+        print (NEWLINE.join(commander.entered_commands))
+        print (NEWLINE.join(translation_comments))
     commander.process()
     commander.run()
 
