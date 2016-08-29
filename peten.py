@@ -204,7 +204,7 @@ class Commander:
         if "# coding=UTF-8" in self.entered_commands:
             self.entered_commands.remove("# coding=UTF-8")
         self.entered_commands = ["# coding=UTF-8"]+self.entered_commands+self.translation_comments
-        print(type(self.entered_commands))
+        #print(type(self.entered_commands))
         f = open(PY_SCRIPTS_PATH+"temp.py", "wb")
         new_text = NEWLINE.join(self.entered_commands)
         #print (bytes(new_text, "utf8"))
@@ -425,27 +425,27 @@ class App:
     def main(self):
         gtk.main()
 
-def process_and_run_no_GUI(filename, debug_mode=True):
+def process_and_run_no_GUI(filename, debug_mode=False):
     commander = Commander(None, debug_mode)        
-    text = open(filename, "r").read()
+    text = open(filename, "rb").read().decode("utf8")
     try:
-        translations_text = open(filename+".translations", "r").read()
+        translations_text = open(filename+".translations", "rb").read().decode("utf8")
         commander.update_translations_from_comments(translations_text)
         translation_comments = translations_text.split(NEWLINE)
     except:
         text = "".join([COMMENTS_BEGIN] + [DUMMY_COMMENT] + [COMMENTS_END])
-        f = open(filename+".translations", "w")#
+        f = open(filename+".translations", "wb")#
     
-        f.write(text)
+        f.write(bytes(text,"utf8"))
         f.close()
         translation_comments = []
 
     needing_translation = []
     lines = str(text).split(NEWLINE)
     for l in lines:
-        print (l, type(l))
+        #print (l, type(l))
         words = commander.tokenize(l) #.decode("utf-8"))
-        print ("WORDS:"+NEWLINE, words)
+        #print ("WORDS:"+NEWLINE, words)
         pyline = []
         for word in words:
             pyword = commander.translate(word)
