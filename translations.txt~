@@ -1,4 +1,4 @@
-__init__ = __אתחל__
+__init__ = __לאתחל__
 and = וגם
 as = בשם
 assert = ASSERT
@@ -25,6 +25,7 @@ int = מספר_שלם
 is = הוא
 lambda = LAMBDA
 len = אורך
+None = כלום
 not = לא
 open = לפתוח
 or = או

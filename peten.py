@@ -10,8 +10,8 @@ import gtk
 
 import subprocess
 
-#EXECUTABLE = "python3"
-EXECUTABLE = "C:\Python34\python.exe"
+EXECUTABLE = "python3"
+#EXECUTABLE = "C:\Python34\python.exe"
 PY_PATH = os.path.join(".","") # Where to find translations.py etc...
 PY_SCRIPTS_PATH = os.path.join(".","") # Where to put scripts and where to create temp.py
 
@@ -175,8 +175,6 @@ class Commander:
         return self.translated
 
     def translate(self, word, debug_mode=False):
-        #print ("translating", bytes(word, "utf8"))
-        #print ([bytes(x, "utf8") for x in self.translated.keys()])
         if word in self.translated:
             return self.translated[word]
         if word in " +-=%*/.()[]{}:!,<>0123456789":
@@ -200,19 +198,23 @@ class Commander:
                 return True
         return False
 
-    def process(self):
+    def process(self, filename=None):
+        if not filename:
+            filename = PY_SCRIPTS_PATH+"temp.py"
         if "# coding=UTF-8" in self.entered_commands:
             self.entered_commands.remove("# coding=UTF-8")
         self.entered_commands = ["# coding=UTF-8"]+self.entered_commands+self.translation_comments
-        print(type(self.entered_commands))
-        f = open(PY_SCRIPTS_PATH+"temp.py", "wb")
+        f = open(filename, "wb")
         new_text = NEWLINE.join(self.entered_commands)
-        #print (bytes(new_text, "utf8"))
         f.write(bytes(new_text,"utf8"))
         f.close()
 
-    def run(self):
-        subprocess.call([EXECUTABLE, PY_SCRIPTS_PATH+"temp.py"])
+    def run(self, filename=None):
+        print("Run")
+        if not filename:
+            filename = PY_SCRIPTS_PATH+"temp.py"
+        subprocess.call([EXECUTABLE, filename])
+        print("Done")
 
 
 test_data = [
@@ -226,7 +228,7 @@ class TranslationstWindow(gtk.Window):
         scrolled = gtk.ScrolledWindow()
         # create list storage        
         store = gtk.ListStore(str, str, str, str)
-        words = dictionary.keys()
+        words = [x for x in dictionary.keys()]
         words.sort()
         for word in words:
             store.append([word, dictionary[word], '#FFEEF0', '#FFFFFF'])
@@ -264,11 +266,11 @@ class App:
         self.vpaned = gtk.VPaned()
         self.vpaned.add2(self.scrolled2)
         hbox_buttons = gtk.HBox()
-        button_process = gtk.Button("Process")
+        button_process = gtk.Button("לעבד")
         button_process.connect("clicked", self.process)
-        button_process_and_run = gtk.Button("Process and Run")
+        button_process_and_run = gtk.Button("לעבד ולהריץ")
         button_process_and_run.connect("clicked", self.process_and_run)
-        button_show_translations = gtk.Button("Show Translations")
+        button_show_translations = gtk.Button("להציג מילון")
         button_show_translations.connect("clicked", self.show_translations)
         hbox_buttons.pack_start(button_process, False, False, 0)
         hbox_buttons.pack_start(button_process_and_run, False, False, 0)
@@ -283,17 +285,17 @@ class App:
     def create_menu(self):
         menu_bar = gtk.MenuBar()
         file_menu = gtk.Menu()
-        file_menu_item = gtk.MenuItem("File")
+        file_menu_item = gtk.MenuItem("קובץ")
         file_menu_item.set_submenu(file_menu)
         menu_bar.append(file_menu_item)
 
-        open_menu_item = gtk.MenuItem("Open")
+        open_menu_item = gtk.MenuItem("לפתוח")
         open_menu_item.connect("activate", self.execute_file_open)
         file_menu.append(open_menu_item)
-        save_menu_item = gtk.MenuItem("Save")
+        save_menu_item = gtk.MenuItem("לשמור")
         save_menu_item.connect("activate", self.execute_file_save)
         file_menu.append(save_menu_item)
-        save_as_menu_item = gtk.MenuItem("Save As")
+        save_as_menu_item = gtk.MenuItem("לשמור בשם")
         save_as_menu_item.connect("activate", self.execute_file_save_as)
         file_menu.append(save_as_menu_item)
         menu_bar.show_all()
@@ -402,22 +404,28 @@ class App:
     def process(self, widget=None, event=None):
         text = self.get_text()
         self.translate(text)
-        self.commander.process()
+        outfile = None
+        if self.current_file.endswith(".peten"):
+            outfile = self.current_file.replace(".peten", ".py")
+        self.commander.process(outfile)
 
     def process_and_run(self, widget=None, event=None):
         text = self.get_text()
         self.translate(text)
-        self.commander.process()
-        self.commander.run()
+        outfile = None
+        if self.current_file.endswith(".peten"):
+            outfile = self.current_file.replace(".peten", ".py")
+        self.commander.process(outfile)
+        self.commander.run(outfile)
 
     def run(self):
-        self.commander.run()
+        outfile = None
+        if self.current_file.endswith(".peten"):
+            outfile = self.current_file.replace(".peten", ".py")
+        self.commander.run(outfile)
 
     def show_translations(self, event=None):
         self.translations = TranslationstWindow(self.commander.get_translation_dic())
-
-    #def add_command_line_to_textscreen(self, text):
-    #    self.textbuffer.insert_at_cursor(text+"\n")        
 
     def destroy(self, event=None):
         gtk.main_quit()
@@ -463,8 +471,11 @@ def process_and_run_no_GUI(filename, debug_mode=True):
     if debug_mode:
         print (NEWLINE.join(commander.entered_commands))
         print (NEWLINE.join(translation_comments))
-    commander.process()
-    commander.run()
+    outfile = None
+    if filename.endswith(".peten"):
+        outfile = filename.replace(".peten", ".py")
+    commander.process(outfile)
+    commander.run(outfile)
 
 
 if __name__ == "__main__":
